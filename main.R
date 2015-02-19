@@ -1,4 +1,5 @@
-## creating the data frame
+## Step 1: creating the data frame
+
 df <- data.frame(user=character(),
                  stat=numeric(),
                  math=numeric(),
@@ -30,6 +31,28 @@ for (i in 1:10){
   { if (is.na(df[i,j]) ) df[i,j]<- 0 }
 }
 ##-----------------------
-## writing data frame to a csv file
+## Step 2: Exploring and preparing the data ----
 
-write.csv(df,"thesisdata.csv")
+##-----------------------
+## Step 3: Training a model on the data ----
+## selecting variables to include in the model
+skills <- df[,2:7]
+
+## determining number of clusters
+k <- 3
+
+## Implementing the algorithm
+skills_clusters <- kmeans(skills, k)
+
+## Step 4: Evaluating model performance ----
+# look at the size of the clusters
+skills_clusters$size
+
+# look at the cluster centers
+skills_clusters$centers
+
+## Step 5: Improving model performance ----
+# apply the cluster IDs to the original data frame
+df$cluster <- skills_clusters$cluster
+
+
