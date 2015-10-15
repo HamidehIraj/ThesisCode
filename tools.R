@@ -1,155 +1,118 @@
-## Step 1: creating the data frame
 
-toolsdf <- data.frame(user=character(),
-                 r=numeric(),
-                 python=numeric(),
-                 sql=numeric(),
-                 rapidminer=numeric(),
-                 ssas=numeric(),
-                 tableau=numeric(),
-                 stringsAsFactors=FALSE)
-##-----------------------
-## filling user ids
-for (i in 1:10)
-{toolsdf[i,1] <- i }
-##-----------------------
-## filling data frame
-toolsdf[1,c(2,3)]=80
-toolsdf[2,2]=50 ; toolsdf[2,4]=70 ; toolsdf[2,5]=95
-toolsdf[3,4]=45 ; toolsdf[3,6]=90
-toolsdf[4,2]=75 ; toolsdf[4,5]=65 ; toolsdf[4,7]=85
-toolsdf[5,4]=80 ; toolsdf[5,6]=70
-toolsdf[6,3]=60 ; toolsdf[6,4]=60 ; toolsdf[6,5]=45
-toolsdf[7,2]=20 ; toolsdf[7,3]=65 ; toolsdf[7,6]=35
-toolsdf[8,4]=75 ; toolsdf[8,7]=25
-toolsdf[9,2]=80 ; toolsdf[9,3]=60 ; toolsdf[9,4]=65
-toolsdf[10,2]=45; toolsdf[10,7]=85
+## converting to lower case
 
-## turn null values into zero
-for (i in 1:10){
-  for (j in 1:7)
-  { if (is.na(toolsdf[i,j]) ) toolsdf[i,j]<- 0 }
+for (r in ( 1:nrow(df) )  )  {
+df[r,"modeling"]   <- tolower(df[r,"modeling"])
+df[r,"reporting"]  <- tolower(df[r,"reporting"])
+df[r,"relational"] <- tolower(df[r,"relational"])
+df[r,"dataman"]    <- tolower(df[r,"dataman"])
+df[r,"hadoop"]     <- tolower(df[r,"hadoop"])
 }
-#============================================================
-
-## Step 2: Exploring and preparing the data ----
-#============================================================
-
-## Step 3: Training a model on the data ----
-## selecting variables to include in the model
-tools <- toolsdf[,2:7]
-
-## determining number of clusters
-l <- 3
-
-## Implementing the algorithm
-tools_clusters <- kmeans(tools, l)
-
-## Step 4: Evaluating model performance ----
-# look at the size of the clusters
-tools_clusters$size
-
-# look at the cluster centers
-tools_clusters$centers
-
-## Step 5: Improving model performance ----
-# apply the cluster IDs to the original data frame
-toolsdf$cluster <- tools_clusters$cluster
-tools$cluster   <- tools_clusters$cluster
-
-#============================================================
-#kmeans with 10 runs
-set.seed(12345)
-
-# The 'fpc' package provides the 'kmeansruns' function.
-
-require(fpc, quietly=TRUE)
-
-# Generate a kmeans cluster of size 3 choosing the best from 10.
-
-tools_clusters10 <- kmeansruns(na.omit(tools), 3, runs=10)
-#--------------------------------------------
-# Report on the cluster characteristics. 
-
-# Cluster sizes:
-
-paste(crs$kmeans$size, collapse=' ')
-
-# Data means:
-
-colMeans(na.omit(tools))
-
-# Cluster centers:
-
-tools_clusters10$centers
-
-# Within cluster sum of squares:
-
-tools_clusters10$withinss
 
 
-#============================================================
-##Goodness of Fit Test
+## creating variables for monitoring the number of tools
+df$open_modeling   <- 0
+df$com_modeling    <- 0
+df$total_modeling  <- 0
 
-## aggregating based on clusters
-## resource:http://www.r-tutor.com/elementary-statistics/goodness-fit/chi-squared-test-independence
-library(MASS)
-ag <- aggregate(. ~ cluster,FUN=sum ,data=tools)
+##opensource
+df$python     <- NA; df$r          <- NA; df$weka       <- NA; df$java       <- NA; df$javascript <- NA
+df$weka       <- NA; df$mahout     <- NA; df$scala      <- NA; df$perl       <- NA
 
-## show aggregation table
-ag
+##commercial
+df$spss       <- NA; df$ssas       <- NA; df$rapid      <- NA; df$ibm        <- NA;
+df$tsql       <- NA; df$vba        <- NA; df$oracle     <- NA; df$c          <- NA;
+df$cplus      <- NA; df$csharp     <- NA; df$matlab     <- NA; df$bash       <- NA;
+df$stata      <- NA
 
+for(trow in (1:nrow(df)))
+{
+  
+##opensource
+  
+  if (length (grep(pattern="python",x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"python"] <- "yes" ;df[trow,"open_modeling"] <- df[trow,"open_modeling"]+1}
+  
+  if (length (grep(pattern="r language",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"r"]      <- "yes" ;df[trow,"open_modeling"] <- df[trow,"open_modeling"]+1}
 
-chisq.test(ag) 
-#============================================================
-# Rattle 
+  if (length (grep(pattern="weka",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"weka"]      <- "yes" ;df[trow,"open_modeling"] <- df[trow,"open_modeling"]+1}
 
+  if (length (grep(pattern="java language",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"java"]      <- "yes" ;df[trow,"open_modeling"] <- df[trow,"open_modeling"]+1}
 
-# Build the training/validate/test toolsdfs.
+  if (length (grep(pattern="java script",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"javascript"]      <- "yes" ;df[trow,"open_modeling"] <- df[trow,"open_modeling"]+1}
+  
+  if (length (grep(pattern="mahout",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"mahout"]      <- "yes" ;df[trow,"open_modeling"] <- df[trow,"open_modeling"]+1}
+  
+  if (length (grep(pattern="bash",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"bash"]      <- "yes" ;df[trow,"open_modeling"] <- df[trow,"open_modeling"]+1}
+  
+  if (length (grep(pattern="scala",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"scala"]      <- "yes" ;df[trow,"open_modeling"] <- df[trow,"open_modeling"]+1}
+  
+  if (length (grep(pattern="perl",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"perl"]      <- "yes" ;df[trow,"open_modeling"] <- df[trow,"open_modeling"]+1}
+  ##commercial
+  
+  if (length (grep(pattern="spss/ clementine",     x=df[trow,"modeling"]))  > 0) 
+    {df[trow,"spss"]   <- "yes" ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
+  
+  if (length (grep(pattern="microsoft analysis services",     x=df[trow,"modeling"]))  > 0) 
+    {df[trow,"ssas"]   <- "yes"  ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
+  
+  if (length (grep(pattern="rapid miner",     x=df[trow,"modeling"]))  > 0) 
+    {df[trow,"rapid"]  <- "yes" ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
 
-##set.seed(crv$seed) 
-nobs <- nrow(toolsdf) # 10 observations 
-sample <- train <- sample(nrow(toolsdf), 0.7*nobs) # 7 observations
-validate <- sample(setdiff(seq_len(nrow(toolsdf)), train), 0.1*nobs) # 1 observations
-test <- setdiff(setdiff(seq_len(nrow(toolsdf)), train), validate) # 2 observations
+  if (length (grep(pattern="ibm big insights",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"ibm"]  <- "yes" ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
 
-# The following variable selections have been noted.
+  if (length (grep(pattern="tsql",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"tsql"]  <- "yes" ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
 
-input <- c("X", "user", "r", "python","sql", "rapidminer", "ssas")
+  if (length (grep(pattern="visual basic/vba",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"vba"]  <- "yes" ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
 
-# Build the training/validate/test toolsdfs.
+  if (length (grep(pattern="oracle bi",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"oracle"]  <- "yes" ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
 
-set.seed(crv$seed) 
-nobs <- nrow(toolsdf) # 10 observations 
-sample <- train <- sample(nrow(toolsdf), 0.7*nobs) # 7 observations
-validate <- sample(setdiff(seq_len(nrow(toolsdf)), train), 0.1*nobs) # 1 observations
-test <- setdiff(setdiff(seq_len(nrow(toolsdf)), train), validate) # 2 observations
+  if (length (grep(pattern="c language",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"c"]  <- "yes" ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
 
-# The following variable selections have been noted.
+  if (length (grep(pattern="c[+][+]",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"cplus"]  <- "yes" ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
 
-input <- c("r", "python", "sql", "rapidminer", "ssas", "tableau")
+  if (length (grep(pattern="c#",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"csharp"]  <- "yes" ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
 
+  if (length (grep(pattern="matlab",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"matlab"]  <- "yes" ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
 
-# The 'corrplot' package provides the 'corrplot' function.
+  if (length (grep(pattern="stata",     x=df[trow,"modeling"]))  > 0) 
+  {df[trow,"stata"]  <- "yes" ;df[trow,"com_modeling"] <- df[trow,"com_modeling"]+1}
 
-require(corrplot, quietly=TRUE)
+}
 
-# Correlations work for numeric variables only.
+##-----------------------------------------
+## calculating total number of tools
+library(stringr)
 
-cor <- cor(toolsdf[sample, 2:7], use="pairwise", method="pearson")
+for (z in 1:nrow(df))
 
-# Order the correlations by their strength.
+  {df[z,"total_modeling"] <-  str_count(df[z,"modeling"], ',') + 1}
+##-----------------------------------------
 
-ord <- order(cor[1,])
-cor <- cor[ord, ord]
+df[,c("id","open_modeling","com_modeling","total_modeling")]
 
-# Display the actual correlations.
+length(which(df$open_modeling + df$com_modeling == df$total_modeling))
+length(which(df$open_modeling + df$com_modeling != df$total_modeling))
 
-print(cor)
+which(df$open_modeling + df$com_modeling != df$total_modeling)
 
-# Graphically display the correlations.
+##"modeling","open_modeling","com_modeling","total_modeling"
 
-corrplot(cor, mar=c(0,0,1,0))
-title(main="Correlation toolsdf.csv using Pearson",
-      sub=paste("Rattle", format(Sys.time(), "%Y-%b-%d %H:%M:%S"), Sys.info()["user"]))
+#df[which(df$open_modeling + df$com_modeling != df$total_modeling),"total_modeling"] <- 5
 
